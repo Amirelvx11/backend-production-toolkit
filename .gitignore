@@ -1,7 +1,53 @@
-/.venv
-venv
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
 
-/.env
-env
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+.virtualenv/
 
-/.pyc
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs & runtime files
+*.log
+logs/
+*.pid
+*.sock
+
+# Test & coverage reports
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Build & packaging
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# Docker
+docker-data/
+docker-volumes/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDEs & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# CI / Infra artifacts
+.env.local
+.env.production
+.env.staging
