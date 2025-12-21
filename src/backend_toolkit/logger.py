@@ -7,7 +7,7 @@ from backend_toolkit.config import settings
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         payload = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now().isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -24,10 +24,13 @@ def get_logger(name: str) -> logging.Logger:
     logger.setLevel(settings.log_level)
 
     handler = logging.StreamHandler(sys.stdout)
-    formatter = JsonFormatter() if settings.log_json else logging.Formatter(
-        "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
-    )
-    handler.setFormatter(formatter)
+    
+    if settings.log_json:
+        handler.setFormatter(JsonFormatter())
+    else:
+        handler.setFormatter(
+            logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+        )
 
     logger.addHandler(handler)
     logger.propagate = False
