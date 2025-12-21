@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "backend-production-toolkit"
+version = "0.1.0"
+description = "Production-ready backend utilities (config, logging, monitoring)"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "amirmahdi", email = "jamshidiamirmahdi1@gmail.com" }]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "mypy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
