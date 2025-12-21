@@ -1,33 +1,34 @@
 import logging
+import sys
+import json
 from datetime import datetime
+from backend_toolkit.config import settings
 
-from .config import settings
-from .models import LogRecord
+class JsonFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        payload = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+        }
+        if hasattr(record, "run_id"):
+            payload["run_id"] = record.run_id
+        return json.dumps(payload)
 
+def get_logger(name: str) -> logging.Logger:
+    logger = logging.getLogger(name)
+    if logger.handlers:
+        return logger
 
-class BaseLogger:
-    def __init__(self, service_name: str | None = None):
-        self.service_name = service_name or settings.SERVICE_NAME
-        self._logger = logging.getLogger(self.service_name)
-        self._logger.setLevel(settings.LOG_LEVEL)
+    logger.setLevel(settings.log_level)
 
-    def info(self, message: str, context: dict | None = None):
-        self._emit("INFO", message, context)
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = JsonFormatter() if settings.log_json else logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    )
+    handler.setFormatter(formatter)
 
-    def error(self, message: str, context: dict | None = None):
-        self._emit("ERROR", message, context)
-
-    def _emit(self, level: str, message: str, context: dict | None):
-        record = LogRecord(
-            timestamp=datetime.utcnow(),
-            level=level,
-            service=self.service_name,
-            message=message,
-            context=context,
-        )
-
-        # For now: stdout (later Mongo, Kafka, etc.)
-        self._logger.log(
-            getattr(logging, level),
-            f"{record.timestamp.isoformat()} | {record.level} | {record.service} | {record.message} | {record.context}"
-        )
+    logger.addHandler(handler)
+    logger.propagate = False
+    return logger
