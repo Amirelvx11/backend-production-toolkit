@@ -9,7 +9,7 @@ class RunTracker(AbstractContextManager):
     def __init__(self, name: str):
         self.name = name
         self.run_id = str(uuid.uuid4())
-        self._start = None
+        self._start: float | None = None
 
     def __enter__(self):
         self._start = time.time()
@@ -28,7 +28,7 @@ class RunTracker(AbstractContextManager):
             )
         else:
             logger.info(
-                f"run-finished: {self.name}, duration={duration}s",
+                f"run-finished: {self.name} duration={duration}s",
                 extra={"run_id": self.run_id},
             )
         return False
