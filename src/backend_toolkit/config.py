@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     log_json: bool = True
 
     # Mongo Logging
-    mongo_log_enabled: bool = False
-    mongo_uri: str | None = None
+    mongo_log_enabled: bool = Field(default=False)
+    mongo_uri: str | None = Field(default=False)
     mongo_db: str = "logs"
     mongo_collection: str = "app_logs"
 
