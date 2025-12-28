@@ -3,6 +3,7 @@ import sys
 import json
 from datetime import datetime
 from backend_toolkit.config import settings
+from backend_toolkit.mongo_handler import MongoLogHandler
 
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
@@ -23,15 +24,21 @@ def get_logger(name: str) -> logging.Logger:
 
     logger.setLevel(settings.log_level)
 
-    handler = logging.StreamHandler(sys.stdout)
+    stream_handler  = logging.StreamHandler(sys.stdout)
     
     if settings.log_json:
-        handler.setFormatter(JsonFormatter())
+        stream_handler.setFormatter(JsonFormatter())
     else:
-        handler.setFormatter(
+        stream_handler.setFormatter(
             logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
         )
 
-    logger.addHandler(handler)
+    logger.addHandler(stream_handler)
+    
+    # Mongo Handler
+    if settings.mongo_log_enabled and settings.mongo_uri:
+        mongo_handler = MongoLogHandler()
+        logger.addHandler(mongo_handler)  
+    
     logger.propagate = False
     return logger
