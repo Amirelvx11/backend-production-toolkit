@@ -1,15 +1,20 @@
 import os
-from dataclasses import dataclass
+from pydantic import BaseModel, Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-@dataclass(frozen=True)
-class Settings:
-    ENV: str = os.getenv("ENV", "local")
-    SERVICE_NAME: str = os.getenv("SERVICE_NAME", "backend-toolkit")
-    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+class Settings(BaseSettings):
+    app_name: str = "backend-toolkit"
+    environment: str = Field(default="local")
+    debug: bool = False
 
-    # Mongo logging (optional for now)
-    MONGO_URI: str | None = os.getenv("MONGO_URI")
-    MONGO_DB: str = os.getenv("MONGO_DB", "logs")
+    log_level: str = "INFO"
+    log_json: bool = True
+
+    model_config = SettingsConfigDict(
+        env_prefix="BT_",
+        env_file=".env",
+        extra="ignore",
+    )
 
 settings = Settings()
