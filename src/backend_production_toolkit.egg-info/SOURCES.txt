@@ -10,6 +10,7 @@ src/backend_toolkit/__init__.py
 src/backend_toolkit/config.py
 src/backend_toolkit/logger.py
 src/backend_toolkit/models.py
+src/backend_toolkit/mongo_handler.py
 src/backend_toolkit/monitoring/__init__.py
 src/backend_toolkit/monitoring/run_tracker.py
 src/backend_toolkit/utils/__init__.py
