@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     log_json: bool = True
 
+    # Mongo Logging
+    mongo_log_enabled: bool = False
+    mongo_uri: str | None = None
+    mongo_db: str = "logs"
+    mongo_collection: str = "app_logs"
+
     model_config = SettingsConfigDict(
         env_prefix="BT_",
         env_file=".env",
