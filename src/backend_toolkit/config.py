@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     # Mongo Logging
     mongo_log_enabled: bool = Field(default=False)
-    mongo_uri: str | None = Field(default=False)
+    mongo_uri: str | None = None
     mongo_db: str = "logs"
     mongo_collection: str = "app_logs"
 
