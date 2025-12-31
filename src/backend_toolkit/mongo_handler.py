@@ -2,6 +2,7 @@ import logging
 from pymongo import MongoClient
 from datetime import datetime
 from backend_toolkit.config import settings
+from backend_toolkit.utils.time import now_iran_str
 
 _client: MongoClient | None = None
 
@@ -25,7 +26,7 @@ class MongoLogHandler(logging.Handler):
     def emit(self, record: logging.LogRecord):
         try:
             log_doc = {
-                "timestamp": datetime.utcnow(),
+                "timestamp": now_iran_str(),
                 "level": record.levelname,
                 "logger": record.name,
                 "message": record.getMessage(),
