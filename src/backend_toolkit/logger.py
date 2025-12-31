@@ -10,6 +10,7 @@ try:
 except Exception:
     MongoLogHandler = None
 
+
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         payload = {
@@ -62,4 +63,3 @@ def get_logger(name: str) -> logging.Logger:
 
     logger.propagate = False
     return logger
-
