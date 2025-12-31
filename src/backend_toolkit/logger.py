@@ -2,7 +2,8 @@ import logging
 import sys
 import json
 from datetime import datetime
-from backend_toolkit.config import settings
+from .config import settings
+from .utils.time import now_iran_str
 
 try:
     from backend_toolkit.mongo_handler import MongoLogHandler
@@ -12,40 +13,53 @@ except Exception:
 class JsonFormatter(logging.Formatter):
     def format(self, record: logging.LogRecord) -> str:
         payload = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": now_iran_str(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
+            "app": settings.app_name,
+            "environment": settings.environment,
         }
         if hasattr(record, "run_id"):
             payload["run_id"] = record.run_id
         return json.dumps(payload)
 
-_INITIALIZED = False
+
+class IranFormatter(logging.Formatter):
+    def formatTime(self, record, datefmt=None):
+        return now_iran_str()
+
 
 def get_logger(name: str) -> logging.Logger:
-    global _INITIALIZED
-
     logger = logging.getLogger(name)
+    if logger.handlers:
+        return logger
+
     logger.setLevel(settings.log_level)
 
-    if not _INITIALIZED:
-        stream_handler = logging.StreamHandler(sys.stdout)
-    
+    stream_handler = logging.StreamHandler(sys.stdout)
+
     if settings.log_json:
         stream_handler.setFormatter(JsonFormatter())
     else:
         stream_handler.setFormatter(
-            logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+            IranFormatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
         )
 
     logger.addHandler(stream_handler)
-    
-    # Mongo Handler
-    if settings.mongo_log_enabled and settings.mongo_uri and MongoLogHandler is not None:
-        logger.addHandler(MongoLogHandler())  
-    
-        logger.propagate = False
-        _INITIALIZED = True
 
+    # Mongo Handler
+    if (
+        getattr(settings, "mongo_log_enabled", False)
+        and getattr(settings, "mongo_uri", None)
+        and MongoLogHandler is not None
+    ):
+        try:
+            logger.addHandler(MongoLogHandler())
+        except Exception:
+            # Never crash app because of logging
+            pass
+
+    logger.propagate = False
     return logger
+
