@@ -1,8 +1,7 @@
 import logging
 from pymongo import MongoClient
-from datetime import datetime
 from backend_toolkit.config import settings
-from backend_toolkit.utils.time import now_iran_str
+from backend_toolkit.utils.timezone import now_iran_str
 
 _client: MongoClient | None = None
 

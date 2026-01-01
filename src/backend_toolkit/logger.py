@@ -1,9 +1,8 @@
 import logging
 import sys
 import json
-from datetime import datetime
 from .config import settings
-from .utils.time import now_iran_str
+from .utils.timezone import now_iran_str
 
 try:
     from backend_toolkit.mongo_handler import MongoLogHandler
