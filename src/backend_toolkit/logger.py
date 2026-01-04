@@ -1,9 +1,9 @@
 import logging
 import sys
 import json
-from datetime import datetime
+import traceback
 from .config import settings
-from .utils.time import now_iran_str
+from .utils.timezone import now_iran_str
 
 try:
     from backend_toolkit.mongo_handler import MongoLogHandler
@@ -12,6 +12,17 @@ except Exception:
 
 
 class JsonFormatter(logging.Formatter):
+    RESERVED = {
+        "name", "msg", "args", "levelname", "levelno",
+        "pathname", "filename", "module",
+        "exc_info", "exc_text", "stack_info",
+        "lineno", "funcName", "created",
+        "msecs", "relativeCreated",
+        "thread", "threadName",
+        "processName", "process",
+        "message", "asctime",
+    }
+
     def format(self, record: logging.LogRecord) -> str:
         payload = {
             "timestamp": now_iran_str(),
@@ -21,9 +32,16 @@ class JsonFormatter(logging.Formatter):
             "app": settings.app_name,
             "environment": settings.environment,
         }
-        if hasattr(record, "run_id"):
-            payload["run_id"] = record.run_id
-        return json.dumps(payload)
+
+        for key, value in record.__dict__.items():
+            if key not in self.RESERVED and key not in payload:
+                payload[key] = value        
+
+        if record.exc_info:
+            payload["exception"] = traceback.format_exception(*record.exc_info)
+                
+        return json.dumps(payload, default=str)        
+
 
 
 class IranFormatter(logging.Formatter):
@@ -36,7 +54,8 @@ def get_logger(name: str) -> logging.Logger:
     if logger.handlers:
         return logger
 
-    logger.setLevel(settings.log_level)
+    level = logging._nameToLevel.get(settings.log_level.upper(), logging.INFO)
+    logger.setLevel(level)
 
     stream_handler = logging.StreamHandler(sys.stdout)
 
@@ -51,9 +70,10 @@ def get_logger(name: str) -> logging.Logger:
 
     # Mongo Handler
     if (
-        getattr(settings, "mongo_log_enabled", False)
-        and getattr(settings, "mongo_uri", None)
+        settings.mongo_log_enabled
+        and settings.mongo_uri
         and MongoLogHandler is not None
+        and not any(isinstance(h, MongoLogHandler) for h in logger.handlers)
     ):
         try:
             logger.addHandler(MongoLogHandler())
