@@ -1,8 +1,8 @@
 import logging
 from pymongo import MongoClient
-from datetime import datetime
-from backend_toolkit.config import settings
-from backend_toolkit.utils.time import now_iran_str
+from .config import settings
+from .logger import JsonFormatter
+from .utils.timezone import now_iran_str
 
 _client: MongoClient | None = None
 
@@ -18,6 +18,8 @@ def get_mongo_client() -> MongoClient:
     return _client
 
 class MongoLogHandler(logging.Handler):
+    RESERVED = JsonFormatter.RESERVED
+    
     def __init__(self):
         super().__init__()
         client = get_mongo_client()
@@ -34,10 +36,14 @@ class MongoLogHandler(logging.Handler):
                 "app": settings.app_name,
             }
 
-            if hasattr(record, "run_id"):
-                log_doc["run_id"] = record.run_id
+            for key, value in record.__dict__.items():
+                if key not in self.RESERVED and key not in log_doc:
+                    log_doc[key] = value
 
             self.collection.insert_one(log_doc)
-        except Exception:
-            # prevent crashing in production
+        except Exception as exc:
+            logging.getLogger(__name__).debug(
+                "MongoLogHandler emit failed",
+                exc_info=exc,
+            )
             pass
