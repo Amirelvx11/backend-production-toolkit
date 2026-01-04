@@ -1,7 +1,6 @@
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 class Settings(BaseSettings):
     app_name: str = "backend-toolkit"
     environment: str = Field(default="local")
