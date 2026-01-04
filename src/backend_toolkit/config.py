@@ -1,5 +1,4 @@
-import os
-from pydantic import BaseModel, Field
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -24,3 +23,6 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
+
+if settings.mongo_log_enabled and not settings.mongo_uri:
+    raise RuntimeError("mongo_log_enabled=True but mongo_uri is not set")
