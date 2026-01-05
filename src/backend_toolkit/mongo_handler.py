@@ -1,10 +1,11 @@
 import logging
 from pymongo import MongoClient
-from .config import settings
-from .logger import JsonFormatter
-from .utils.timezone import now_iran_str
+from backend_toolkit.config import settings
+from backend_toolkit.formatters import JsonFormatter
+from backend_toolkit.utils.timezone import now_iran_str
 
 _client: MongoClient | None = None
+
 
 def get_mongo_client() -> MongoClient:
     global _client
@@ -17,16 +18,15 @@ def get_mongo_client() -> MongoClient:
         )
     return _client
 
+
 class MongoLogHandler(logging.Handler):
     RESERVED = JsonFormatter.RESERVED
-    
-    def __init__(self):
-        super().__init__()
-        client = get_mongo_client()
-        self.collection = client[settings.mongo_db][settings.mongo_collection]
 
     def emit(self, record: logging.LogRecord):
         try:
+            client = get_mongo_client()
+            collection = client[settings.mongo_db][settings.mongo_collection]
+
             log_doc = {
                 "timestamp": now_iran_str(),
                 "level": record.levelname,
@@ -40,10 +40,10 @@ class MongoLogHandler(logging.Handler):
                 if key not in self.RESERVED and key not in log_doc:
                     log_doc[key] = value
 
-            self.collection.insert_one(log_doc)
-        except Exception as exc:
-            logging.getLogger(__name__).debug(
+            collection.insert_one(log_doc)
+
+        except Exception:
+            logging.getLogger("mongo-logger").error(
                 "MongoLogHandler emit failed",
-                exc_info=exc,
+                exc_info=True,
             )
-            pass
