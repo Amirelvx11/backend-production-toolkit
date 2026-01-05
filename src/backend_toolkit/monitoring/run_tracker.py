@@ -5,6 +5,7 @@ from backend_toolkit.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class RunTracker(AbstractContextManager):
     def __init__(self, name: str):
         self.name = name
@@ -21,10 +22,12 @@ class RunTracker(AbstractContextManager):
 
     def __exit__(self, exc_type, exc, tb):
         duration = round(time.time() - self._start, 4)
+
         if exc:
             logger.error(
                 f"run-failed: {self.name}",
                 extra={"run_id": self.run_id},
+                exc_info=True,
             )
         else:
             logger.info(
