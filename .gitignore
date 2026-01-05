@@ -27,13 +27,14 @@ htmlcov/
 .tox/
 .pytest_cache/
 
-# Build & packaging
+# Build & packaging outputs
 build/
 dist/
 .eggs/
 *.egg-info/
+src/*.egg-info/
 
-# Docker
+# Docker volumes / runtime data
 docker-data/
 docker-volumes/
 
