@@ -40,8 +40,7 @@ class JsonFormatter(logging.Formatter):
         if record.exc_info:
             payload["exception"] = traceback.format_exception(*record.exc_info)
                 
-        return json.dumps(payload, default=str)        
-
+        return json.dumps(payload, default=str)
 
 
 class IranFormatter(logging.Formatter):
