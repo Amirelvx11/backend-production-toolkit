@@ -4,7 +4,15 @@ from backend_toolkit.config import settings
 from backend_toolkit.mongo_handler import MongoLogHandler
 from backend_toolkit.formatters import JsonFormatter, TextFormatter
 
-LOG_LEVEL = logging.getLevelName(settings.log_level.upper())
+
+def resolve_log_level(level: str) -> int:
+    level = level.upper()
+    if level not in logging._nameToLevel:
+        raise ValueError(f"Invalid log level: {level}")
+    return logging._nameToLevel[level]
+
+
+LOG_LEVEL = resolve_log_level(settings.log_level)
 
 
 def get_logger(name: str) -> logging.Logger:
@@ -16,12 +24,9 @@ def get_logger(name: str) -> logging.Logger:
         sh = logging.StreamHandler(sys.stdout)
         sh.setLevel(LOG_LEVEL)
 
-        formatter = (
-            JsonFormatter()
-            if settings.log_json
-            else TextFormatter()
+        sh.setFormatter(
+            JsonFormatter() if settings.log_json else TextFormatter()
         )
-        sh.setFormatter(formatter)
         logger.addHandler(sh)
 
     if settings.mongo_log_enabled and settings.mongo_uri:
