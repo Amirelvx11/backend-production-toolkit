@@ -15,6 +15,7 @@ class JsonFormatter(logging.Formatter):
         "thread", "threadName",
         "processName", "process",
         "message", "asctime",
+        "taskName",
     }
 
     def format(self, record: logging.LogRecord) -> str:
