@@ -3,7 +3,7 @@ import uuid
 from contextlib import AbstractContextManager
 from backend_toolkit.logger import get_logger
 
-logger = get_logger(__name__)
+logger = get_logger("backend toolkit monitoring - run tracker")
 
 
 class RunTracker(AbstractContextManager):
